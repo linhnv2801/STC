@@ -13,7 +13,7 @@ int CL[] = { 0, -1, -1, 0, 0, 1, 1, 1, 1, 0, 1, -1 }; // x chan, y le   : 3
 int CC[] = { -1, -1, -1, 0, -1, 1, 0, 1, 1, 0, 0, -1 }; // x,y deu chan : 4
 int data[15][15], result[8], re_max[8];
 bool visited[15][15], visited2[15][15];
-int n, m, anwser, nums, sum;
+int n, m, anwser, nums, sum, C;
 
 inline int Type(int x, int y);
 inline bool Is_Safe(int x, int y);
@@ -38,6 +38,7 @@ int main()
 		Init();
 		//Print();
 		Solve();
+		//cout << C << endl;
 		Print_Results(re_max, 8);
 		cout << "#" << tc + 1 << " " << anwser << endl;
 	}
@@ -51,6 +52,7 @@ void Try_Cell(int xx, int yy)
 {
 	if (nums == 4)
 	{
+		C++;
 		//GET_MAX(anwser, sum * sum);
 		if (anwser < sum * sum)
 		{
@@ -81,10 +83,16 @@ void Try_Cell(int xx, int yy)
 
 void Solve()
 {
+	int c = 0;
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
 		{
+			c++;
+			if (c > n *m - 3)
+			{
+				return;
+			}
 			visited[i][j] = true;
 			visited2[i][j] = true;
 			sum += data[i][j];
@@ -198,7 +206,7 @@ inline void Copy_Arr(int a[], int b[], int length)
 
 inline bool Is_Safe(int x, int y)
 {
-	if (x < 0 || y < 0 || x > n || y > m || visited[x][y] || visited2[x][y])
+	if (x < 0 || y < 0 || x > n || y > m || visited[x][y] )
 	{
 		return false;
 	}
@@ -220,6 +228,7 @@ void Init()
 	anwser = 0;
 	nums = 1;
 	sum = 0;
+	C = 0;
 }
 
 void Reset()
