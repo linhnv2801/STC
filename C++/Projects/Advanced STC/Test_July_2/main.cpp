@@ -1,6 +1,7 @@
 #include <iostream>
 
 #include <conio.h>
+#include <time.h>
 
 #define GET_MAX(x,y) ( x < y) ? (x = y) : (x)
 
@@ -11,25 +12,31 @@ int LL[] = { 0, -1, -1, 0, 0, 1, 1, 1, 1, 0, 1, -1 }; // x, y deu le    : 1
 int LC[] = { -1, -1, -1, 0, -1, 1, 0, 1, 1, 0, 0, -1 }; // x le, y chan  : 2
 int CL[] = { 0, -1, -1, 0, 0, 1, 1, 1, 1, 0, 1, -1 }; // x chan, y le   : 3
 int CC[] = { -1, -1, -1, 0, -1, 1, 0, 1, 1, 0, 0, -1 }; // x,y deu chan : 4
-int data[15][15], result[8], re_max[8];
+int data[15][15], result[8], re_max[8], queue_x[225], queue_y[225];
 bool visited[15][15], visited2[15][15];
-int n, m, anwser, nums, sum, C;
+int n, m, anwser, nums, sum, C, q_left, q_right;
 
 inline int Type(int x, int y);
 inline bool Is_Safe(int x, int y);
+inline bool Is_Safe2(int x, int y);
 inline void Copy_Arr(int a[], int b[], int length);
 inline void Copy_DD(int i);
 void Init();
 void Print();
+void Add_Queue(int x, int y);
+void De_Queue();
+bool Queue_Is_Empty();
 void Print(int *arr, int length);
 void Print_Results(int *arr, int length);
 void Mark(int nums, int x, int y);
 void Try_Cell(int xx, int yy);
+void Try_Cell2(int xx, int yy);
 void Solve();
 void Reset();
 
 int main()
 {
+	clock_t tStart = clock();
 	freopen("sample_input.txt", "r", stdin);
 	int T;
 	cin >> T;
@@ -39,11 +46,12 @@ int main()
 		//Print();
 		Solve();
 		//cout << C << endl;
-		Print_Results(re_max, 8);
+		//Print_Results(re_max, 8);
 		cout << "#" << tc + 1 << " " << anwser << endl;
 	}
 
 	//cout << "done" << endl;
+	printf("Time taken: %.2fs\n", (double)(clock() - tStart) /CLOCKS_PER_SEC);
 	getch();
 	return 0;
 }
@@ -54,6 +62,7 @@ void Try_Cell(int xx, int yy)
 	{
 		C++;
 		//GET_MAX(anwser, sum * sum);
+		//Print_Results(result, 8);
 		if (anwser < sum * sum)
 		{
 			Copy_Arr(re_max, result, 8);
@@ -61,8 +70,9 @@ void Try_Cell(int xx, int yy)
 		}
 		return;
 	}
-	Copy_DD(Type(xx, yy));
 
+	//DFS
+	Copy_DD(Type(xx, yy));
 	for (int i = 0; i < 12; i += 2)
 	{
 		int x = xx + DD[i];
@@ -73,7 +83,10 @@ void Try_Cell(int xx, int yy)
 			nums++;
 			Mark(nums, x, y);
 			sum += data[x][y];
+
 			Try_Cell(x, y);
+
+			Copy_DD(Type(xx, yy));
 			visited[x][y] = false;
 			nums--;
 			sum -= data[x][y];
@@ -83,25 +96,82 @@ void Try_Cell(int xx, int yy)
 
 void Solve()
 {
-	int c = 0;
 	for (int i = 0; i < n; i++)
 	{
 		for (int j = 0; j < m; j++)
 		{
-			c++;
-			if (c > n *m - 3)
-			{
-				return;
-			}
 			visited[i][j] = true;
 			visited2[i][j] = true;
 			sum += data[i][j];
 			result[0] = i;
 			result[1] = j;
 			Try_Cell(i, j);
+			Try_Cell2(i,j);
 			Reset();
 		}
 	}
+}
+
+void Try_Cell2(int xx, int yy)
+{
+	Copy_DD(Type(xx, yy));
+	int sum2 = data[xx][yy];
+	int c = 0;
+	for (int i = 0; i < 12; i += 4)
+	{
+		int x = xx + DD[i];
+		int y = yy + DD[i + 1];
+		if (Is_Safe(x, y))
+		{
+			c++;
+			sum2 += data[x][y];
+		}
+	}
+	if (c == 3)
+	{
+		if (anwser < sum2 * sum2)
+		{
+			anwser = sum2 * sum2;
+		}
+	}
+	c = 0;
+	for (int i = 1; i < 12; i += 4)
+	{
+		int x = xx + DD[i];
+		int y = yy + DD[i + 1];
+		if (Is_Safe(x, y))
+		{
+			c++;
+			sum2 += data[x][y];
+		}
+	}
+	if (c == 3)
+	{
+		if (anwser < sum2 * sum2)
+		{
+			anwser = sum2 * sum2;
+		}
+	}
+}
+
+bool Queue_Is_Empty()
+{
+	if (q_left == q_right)
+	{
+		return true;
+	}
+	return false;
+}
+
+void Add_Queue(int x, int y)
+{
+	queue_x[q_right] = x;
+	queue_y[q_right++] = y;
+}
+
+void De_Queue()
+{
+	q_left++;
 }
 
 void Mark(int nums, int x, int y)
@@ -213,6 +283,15 @@ inline bool Is_Safe(int x, int y)
 	return true;
 }
 
+inline bool Is_Safe2(int x, int y)
+{
+	if (x < 0 || y < 0 || x > n || y > m )
+	{
+		return false;
+	}
+	return true;
+}
+
 void Init()
 {
 	cin >> m >> n;
@@ -229,6 +308,7 @@ void Init()
 	nums = 1;
 	sum = 0;
 	C = 0;
+	q_left = q_right = 0;
 }
 
 void Reset()
@@ -242,6 +322,7 @@ void Reset()
 	}
 	nums = 1;
 	sum = 0;
+	q_left = q_right = 0;
 }
 
 void Print()
