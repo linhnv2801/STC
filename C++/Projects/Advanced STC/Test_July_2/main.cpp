@@ -12,9 +12,9 @@ int LL[] = { 0, -1, -1, 0, 0, 1, 1, 1, 1, 0, 1, -1 }; // x, y deu le    : 1
 int LC[] = { -1, -1, -1, 0, -1, 1, 0, 1, 1, 0, 0, -1 }; // x le, y chan  : 2
 int CL[] = { 0, -1, -1, 0, 0, 1, 1, 1, 1, 0, 1, -1 }; // x chan, y le   : 3
 int CC[] = { -1, -1, -1, 0, -1, 1, 0, 1, 1, 0, 0, -1 }; // x,y deu chan : 4
-int data[15][15], result[8], re_max[8], queue_x[225], queue_y[225];
-bool visited[15][15], visited2[15][15];
-int n, m, anwser, nums, sum, C, q_left, q_right;
+int data[15][15], result[8], re_max[8];
+bool visited[15][15];
+int n, m, anwser, nums, sum, C;
 
 inline int Type(int x, int y);
 inline bool Is_Safe(int x, int y);
@@ -23,9 +23,6 @@ inline void Copy_Arr(int a[], int b[], int length);
 inline void Copy_DD(int i);
 void Init();
 void Print();
-void Add_Queue(int x, int y);
-void De_Queue();
-bool Queue_Is_Empty();
 void Print(int *arr, int length);
 void Print_Results(int *arr, int length);
 void Mark(int nums, int x, int y);
@@ -101,7 +98,6 @@ void Solve()
 		for (int j = 0; j < m; j++)
 		{
 			visited[i][j] = true;
-			visited2[i][j] = true;
 			sum += data[i][j];
 			result[0] = i;
 			result[1] = j;
@@ -132,9 +128,18 @@ void Try_Cell2(int xx, int yy)
 		if (anwser < sum2 * sum2)
 		{
 			anwser = sum2 * sum2;
+			re_max[0] = xx;
+			re_max[1] = yy;
+			re_max[2] = xx + DD[0];
+			re_max[3] = xx + DD[1];
+			re_max[4] = xx + DD[4];
+			re_max[5] = xx + DD[5];
+			re_max[6] = xx + DD[8];
+			re_max[7] = xx + DD[9];
 		}
 	}
 	c = 0;
+	sum2 = data[xx][yy];
 	for (int i = 1; i < 12; i += 4)
 	{
 		int x = xx + DD[i];
@@ -150,28 +155,16 @@ void Try_Cell2(int xx, int yy)
 		if (anwser < sum2 * sum2)
 		{
 			anwser = sum2 * sum2;
+			re_max[0] = xx;
+			re_max[1] = yy;
+			re_max[2] = xx + DD[1];
+			re_max[3] = xx + DD[2];
+			re_max[4] = xx + DD[5];
+			re_max[5] = xx + DD[6];
+			re_max[6] = xx + DD[9];
+			re_max[7] = xx + DD[10];
 		}
 	}
-}
-
-bool Queue_Is_Empty()
-{
-	if (q_left == q_right)
-	{
-		return true;
-	}
-	return false;
-}
-
-void Add_Queue(int x, int y)
-{
-	queue_x[q_right] = x;
-	queue_y[q_right++] = y;
-}
-
-void De_Queue()
-{
-	q_left++;
 }
 
 void Mark(int nums, int x, int y)
@@ -301,14 +294,12 @@ void Init()
 		{
 			cin >> data[i][j];
 			visited[i][j] = false;
-			visited2[i][j] = false;
 		}
 	}
 	anwser = 0;
 	nums = 1;
 	sum = 0;
 	C = 0;
-	q_left = q_right = 0;
 }
 
 void Reset()
@@ -322,7 +313,6 @@ void Reset()
 	}
 	nums = 1;
 	sum = 0;
-	q_left = q_right = 0;
 }
 
 void Print()
