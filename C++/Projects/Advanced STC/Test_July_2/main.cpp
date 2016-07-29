@@ -96,7 +96,7 @@ int main()
 		//Solve();
 		Dynamic_Max();
 		//cout << C << endl;
-		Print_Result(result_max, 8);
+		//Print_Result(result_max, 8);
 		//Print_Max3();
 		cout << "#" << tc + 1 << " " << anwser << endl;
 		Free();
